@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>فندق - موتور جستجو</title>
+
+<!-- فونت B Elham -->
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/elham-font@v1.0/dist/font-face.css" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Elham', sans-serif;
+        background: #f7f7f7;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        text-align: center;
+    }
+
+    .logo {
+        margin-top: 80px;
+        font-size: 60px;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .search-box {
+        margin-top: 40px;
+    }
+
+    input {
+        width: 60%;
+        padding: 15px;
+        font-size: 22px;
+        border-radius: 12px;
+        border: 2px solid #ccc;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #4CAF50;
+    }
+
+    .results {
+        margin-top: 40px;
+        width: 60%;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: right;
+    }
+
+    .result-item {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 10px #ddd;
+    }
+
+    .result-item a {
+        font-size: 20px;
+        color: #0066cc;
+        text-decoration: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="logo">
+    فند<span style="position:relative;">
+        <span style="position:absolute; top:-10px; right:-5px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Football_%28soccer_ball%29.svg" width="30">
+        </span>
+        ق
+    </span>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Leaf_icon_01.svg">
+</div>
+
+<div class="search-box">
+    <input id="query" placeholder="جستجو در فندق...">
+</div>
+
+<div class="results" id="results"></div>
+
+<script>
+async function search() {
+    const q = document.getElementById("query").value;
+    if (!q) return;
+
+    const url = `https://api.duckduckgo.com/?q=${q}&format=json&no_redirect=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    const topics = data.RelatedTopics || [];
+
+    topics.forEach(item => {
+        if (item.FirstURL) {
+            resultsDiv.innerHTML += `
+                <div class="result-item">
+                    <a href="${item.FirstURL}" target="_blank">${item.Text}</a>
+                </div>
+            `;
+        }
+
+        if (item.Topics) {
+            item.Topics.forEach(sub => {
+                if (sub.FirstURL) {
+                    resultsDiv.innerHTML += `
+                        <div class="result-item">
+                            <a href="${sub.FirstURL}" target="_blank">${sub.Text}</a>
+                        </div>
+                    `;
+                }
+            });
+        }
+    });
+}
+
+document.getElementById("query").addEventListener("keyup", function(e) {
+    if (e.key === "Enter") search();
+});
+</script>
+
+</body>
+</html>
